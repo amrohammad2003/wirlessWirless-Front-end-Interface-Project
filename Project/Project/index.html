@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI-Powered Wireless Network Designer</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <style>
+        .hidden { display: none; }
+        .ai-explanation {
+            background-color: #f7fafc;
+            border-left: 4px solid #4299e1;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            text-align: left;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+        .ai-explanation h1, .ai-explanation h2, .ai-explanation h3 {
+            font-weight: bold;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.25rem;
+        }
+        .ai-explanation h1 { font-size: 1.25rem; }
+        .ai-explanation h2 { font-size: 1.1rem; }
+        .ai-explanation ul { list-style-type: disc; margin-left: 1.5rem; }
+        .ai-explanation p { margin-bottom: 0.75rem; }
+        .ai-explanation code { background-color: #e2e8f0; padding: 2px 4px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; }
+        .ai-explanation blockquote { border-left: 3px solid #cbd5e0; padding-left: 1rem; margin-left: 0; font-style: italic; color: #4a5568; }
+    </style>
+</head>
+<body class="flex flex-col items-center min-h-screen bg-gray-100 font-sans">
+    <nav class="w-full bg-blue-900 p-4 shadow-md">
+        <div class="container mx-auto flex justify-center">
+            <div class="flex space-x-4">
+                <a id="calculator1Link" class="text-white font-semibold hover:bg-blue-700 px-3 py-2 rounded cursor-pointer border border-transparent hover:border-white">1. Wireless Comm. System</a>
+                <a id="calculator2Link" class="text-white font-semibold hover:bg-blue-700 px-3 py-2 rounded cursor-pointer border border-transparent hover:border-white">2. OFDM System</a>
+                <a id="calculator3Link" class="text-white font-semibold hover:bg-blue-700 px-3 py-2 rounded cursor-pointer border border-transparent hover:border-white">3. Link Budget</a>
+                <a id="calculator4Link" class="text-white font-semibold hover:bg-blue-700 px-3 py-2 rounded cursor-pointer border border-transparent hover:border-white">4. Cellular System Design</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Calculator 1: Wireless Communication System -->
+    <div id="calculator1" class="container mx-auto p-6 my-10 bg-white shadow-lg rounded-lg flex flex-col w-full max-w-4xl">
+        <h2 class="text-2xl font-bold mb-4 text-center text-blue-800">1. Wireless Communication System</h2>
+        <div class="flex flex-row justify-center items-start gap-6">
+            <div class="inputs flex flex-col items-start w-1/3">
+                <label for="inputBandwidth" class="font-semibold mb-1">Bandwidth (Hz)</label>
+                <input type="number" id="inputBandwidth" class="mb-4 p-2 border rounded w-full" value="4000" />
+                <label for="inputQuantizerBits" class="font-semibold mb-1">Quantizer Bits</label>
+                <input type="number" id="inputQuantizerBits" class="mb-4 p-2 border rounded w-full" value="8" />
+                <label for="inputSourceEncoderRate" class="font-semibold mb-1">Source Encoder Rate</label>
+                <input type="number" id="inputSourceEncoderRate" class="mb-4 p-2 border rounded w-full" value="0.25" />
+                <label for="inputChannelEncoderRate" class="font-semibold mb-1">Channel Encoder Rate</label>
+                <input type="number" id="inputChannelEncoderRate" class="mb-4 p-2 border rounded w-full" value="0.5" />
+                <label for="inputInterleaverBits" class="font-semibold mb-1">Interleaver Block Size (bits)</label>
+                <input type="number" id="inputInterleaverBits" class="mb-4 p-2 border rounded w-full" value="1024" />
+                <label for="inputBurstSize" class="font-semibold mb-1">Burst Format Size (bits)</label>
+                <input type="number" id="inputBurstSize" class="mb-4 p-2 border rounded w-full" value="2048" />
+                <button onclick="calculate1()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full font-bold">Calculate</button>
+            </div>
+            <div class="text-center w-2/3 h-full">
+                <div class="result w-full border-2 border-gray-300 p-4 rounded-md min-h-[150px]" id="result1">Results will appear here...</div>
+                <button id="explainBtn1" onclick="explain1()" class="bg-green-600 text-white px-4 py-2 mt-4 rounded hover:bg-green-700 w-full font-bold hidden">🤖 Explain with AI</button>
+                <div id="explanation1" class="ai-explanation hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculator 2: OFDM System -->
+    <div id="calculator2" class="container mx-auto p-6 my-10 bg-white shadow-lg rounded-lg flex-col w-full max-w-4xl hidden">
+        <h2 class="text-2xl font-bold mb-4 text-center text-blue-800">2. OFDM System</h2>
+        <div class="flex flex-row justify-center items-start gap-6">
+            <div class="inputs flex flex-col items-start w-1/3">
+                <label for="inputResourceBlockBandwidth" class="font-semibold mb-1">Resource Block Bandwidth (kHz)</label>
+                <input type="number" id="inputResourceBlockBandwidth" class="mb-4 p-2 border rounded w-full" value="180"/>
+                <label for="subcarrierSpacing" class="font-semibold mb-1">Subcarrier Spacing (kHz)</label>
+                <input type="number" id="subcarrierSpacing" class="mb-4 p-2 border rounded w-full" value="15"/>
+                <label for="inputNumOfdmSymbolPerResourceBlock" class="font-semibold mb-1">OFDM Symbols per RB</label>
+                <input type="number" id="inputNumOfdmSymbolPerResourceBlock" class="mb-4 p-2 border rounded w-full" value="7"/>
+                <label for="inputResourceBlockDuration" class="font-semibold mb-1">Resource Block Duration (ms)</label>
+                <input type="number" id="inputResourceBlockDuration" class="mb-4 p-2 border rounded w-full" value="0.5"/>
+                <label for="inputModulation" class="font-semibold mb-1">Modulation Order (e.g., 64 for 64-QAM)</label>
+                <input type="number" id="inputModulation" class="mb-4 p-2 border rounded w-full" value="64"/>
+                <label for="inputParallelResourceBlocks" class="font-semibold mb-1">Parallel Resource Blocks</label>
+                <input type="number" id="inputParallelResourceBlocks" class="mb-4 p-2 border rounded w-full" value="100"/>
+                <button onclick="calculate2()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full font-bold">Calculate</button>
+            </div>
+            <div class="text-center w-2/3 h-full">
+                <div class="result w-full border-2 border-gray-300 p-4 rounded-md min-h-[150px]" id="result2">Results will appear here...</div>
+                <button id="explainBtn2" onclick="explain2()" class="bg-green-600 text-white px-4 py-2 mt-4 rounded hover:bg-green-700 w-full font-bold hidden">🤖 Explain with AI</button>
+                <div id="explanation2" class="ai-explanation hidden"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Calculator 3: Link Budget -->
+    <div id="calculator3" class="container mx-auto p-6 my-10 bg-white shadow-lg rounded-lg flex-col w-full max-w-5xl hidden">
+        <h2 class="text-2xl font-bold mb-4 text-center text-blue-800">3. Link Budget Calculation</h2>
+        <div class="flex flex-row justify-center items-start gap-6">
+            <div class="inputs flex flex-col items-start w-1/3">
+                <label for="inputPathLoss" class="font-semibold mb-1">Path Loss (dB)</label>
+                <input type="number" id="inputPathLoss" class="mb-4 p-2 border rounded w-full" value="140"/>
+                <label for="inputTransmitAntennaGain" class="font-semibold mb-1">Transmit Antenna Gain (dBi)</label>
+                <input type="number" id="inputTransmitAntennaGain" class="mb-4 p-2 border rounded w-full" value="8"/>
+                <label for="inputReceiveAntennaGain" class="font-semibold mb-1">Receive Antenna Gain (dBi)</label>
+                <input type="number" id="inputReceiveAntennaGain" class="mb-4 p-2 border rounded w-full" value="0"/>
+                <label for="inputDataRate" class="font-semibold mb-1">Data Rate (kbps)</label>
+                <input type="number" id="inputDataRate" class="mb-4 p-2 border rounded w-full" value="9.6"/>
+                <label for="inputOtherLosses" class="font-semibold mb-1">Other System Losses (dB)</label>
+                <input type="number" id="inputOtherLosses" class="mb-4 p-2 border rounded w-full" value="4"/>
+                <label for="inputFadeMargin" class="font-semibold mb-1">Fade Margin (dB)</label>
+                <input type="number" id="inputFadeMargin" class="mb-4 p-2 border rounded w-full" value="8"/>
+                <label for="inputNoiseFigureTotal" class="font-semibold mb-1">Receiver Noise Figure (dB)</label>
+                <input type="number" id="inputNoiseFigureTotal" class="mb-4 p-2 border rounded w-full" value="6"/>
+                <label for="inputNoiseTemperature" class="font-semibold mb-1">System Noise Temperature (K)</label>
+                <input type="number" id="inputNoiseTemperature" class="mb-4 p-2 border rounded w-full" value="290"/>
+                <label for="inputModulationType" class="font-semibold mb-1">Modulation Type</label>
+                <select id="inputModulationType" class="mb-4 p-2 border rounded w-full bg-white">
+                    <option value="BPSK">BPSK</option>
+                    <option value="8-PSK">8-PSK</option>
+                    <option value="16-PSK">16-PSK</option>
+                </select>
+                <label for="inputMaxBitErrorRate" class="font-semibold mb-1">Max Bit Error Rate (BER)</label>
+                <input type="number" id="inputMaxBitErrorRate" class="mb-4 p-2 border rounded w-full" value="0.0001"/>
+                <button onclick="calculate3()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full font-bold">Calculate</button>
+            </div>
+            <div class="text-center w-2/3 h-full">
+                <div class="result w-full border-2 border-gray-300 p-4 rounded-md min-h-[150px]" id="result3">Results will appear here...</div>
+                <button id="explainBtn3" onclick="explain3()" class="bg-green-600 text-white px-4 py-2 mt-4 rounded hover:bg-green-700 w-full font-bold hidden">🤖 Explain with AI</button>
+                <div id="explanation3" class="ai-explanation hidden"></div>
+                <div class="mx-auto p-4 bg-white rounded-lg shadow-lg mt-6 border" id="BER_Plot">
+                    <div id="plot" class="w-full"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculator 4: Cellular System Design -->
+    <div id="calculator4" class="container mx-auto p-6 my-10 bg-white shadow-lg rounded-lg flex-col w-full max-w-4xl hidden">
+        <h2 class="text-2xl font-bold mb-4 text-center text-blue-800">4. Cellular System Design</h2>
+        <div class="flex flex-row justify-center items-start gap-6">
+            <div class="inputs flex flex-col items-start w-1/3">
+                <label for="inputCityArea" class="font-semibold mb-1">Total Coverage Area (km²)</label>
+                <input type="number" id="inputCityArea" class="mb-4 p-2 border rounded w-full" value="2000"/>
+                <label for="inputNumSubscribers" class="font-semibold mb-1">Number of Subscribers</label>
+                <input type="number" id="inputNumSubscribers" class="mb-4 p-2 border rounded w-full" value="400000"/>
+                <label for="inputAvgCallsPerHour" class="font-semibold mb-1">Avg. Calls per User (per hour)</label>
+                <input type="number" id="inputAvgCallsPerHour" class="mb-4 p-2 border rounded w-full" value="1"/>
+                <label for="inputAvgCallDuration" class="font-semibold mb-1">Avg. Call Duration (minutes)</label>
+                <input type="number" id="inputAvgCallDuration" class="mb-4 p-2 border rounded w-full" value="3"/>
+                <label for="inputCallDropProb" class="font-semibold mb-1">Grade of Service (Blocking Prob.)</label>
+                <input type="number" id="inputCallDropProb" class="mb-4 p-2 border rounded w-full" value="0.02"/>
+                <label for="inputMinSIR" class="font-semibold mb-1">Minimum SIR (dB)</label>
+                <input type="number" id="inputMinSIR" class="mb-4 p-2 border rounded w-full" value="18"/>
+                <label for="inputPathLossExponent" class="font-semibold mb-1">Path Loss Exponent (n)</label>
+                <input type="number" id="inputPathLossExponent" class="mb-4 p-2 border rounded w-full" value="4"/>
+                <label for="inputCellRadius" class="font-semibold mb-1">Cell Radius (km)</label>
+                <input type="number" id="inputCellRadius" class="mb-4 p-2 border rounded w-full" value="1"/>
+                <button onclick="calculate4()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full font-bold">Calculate</button>
+            </div>
+            <div class="text-center w-2/3 h-full">
+                <div class="result w-full border-2 border-gray-300 p-4 rounded-md min-h-[150px]" id="result4">Results will appear here...</div>
+                <button id="explainBtn4" onclick="explain4()" class="bg-green-600 text-white px-4 py-2 mt-4 rounded hover:bg-green-700 w-full font-bold hidden">🤖 Explain with AI</button>
+                <div id="explanation4" class="ai-explanation hidden"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- JAVASCRIPT SECTION -->
+    <script src="BERvsEbNo.js"></script>
+    <script src="ErlangB.js"></script>
+    <script>
+        // Store inputs and outputs globally for the AI explanation functions
+        let lastCalculation = {};
+
+        async function getAIExplanation(scenario, inputs, outputs, explanationDivId) {
+            const explanationDiv = document.getElementById(explanationDivId);
+            explanationDiv.classList.remove('hidden');
+            explanationDiv.innerHTML = '<p>🤖 Thinking... Please wait. The AI is generating a detailed explanation.</p>';
+
+            try {
+                const response = await fetch('http://localhost:3000/api/explain', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ scenario, inputs, outputs }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch explanation.');
+                }
+
+                const data = await response.json();
+                explanationDiv.innerHTML = marked.parse(data.explanation);
+
+            } catch (error) {
+                console.error('Error getting AI explanation:', error);
+                explanationDiv.innerHTML = `<p style="color: red; font-weight: bold;">Error: Could not connect to the AI assistant.</p><p>Please ensure the backend server is running ('npm start' in the terminal). Details: ${error.message}</p>`;
+            }
+        }
+        
+        // --- Navigation Logic ---
+        const calculators = {
+            calc1: document.getElementById('calculator1'),
+            calc2: document.getElementById('calculator2'),
+            calc3: document.getElementById('calculator3'),
+            calc4: document.getElementById('calculator4'),
+        };
+        const links = {
+            link1: document.getElementById('calculator1Link'),
+            link2: document.getElementById('calculator2Link'),
+            link3: document.getElementById('calculator3Link'),
+            link4: document.getElementById('calculator4Link'),
+        };
+        const BER_Plot = document.getElementById("BER_Plot");
+
+        function showCalculator(calcToShow) {
+            Object.values(calculators).forEach(calc => calc.classList.add('hidden'));
+            calculators[calcToShow].classList.remove('hidden');
+            BER_Plot.classList.add('hidden');
+            if (calcToShow === 'calc3') {
+                BER_Plot.classList.remove('hidden');
+            }
+        }
+        links.link1.addEventListener('click', () => showCalculator('calc1'));
+        links.link2.addEventListener('click', () => showCalculator('calc2'));
+        links.link3.addEventListener('click', () => showCalculator('calc3'));
+        links.link4.addEventListener('click', () => showCalculator('calc4'));
+        
+        showCalculator('calc1');
+
+        function formatResult(label, value, unit) {
+            return `<div class="font-semibold">${label}:</div><div class="text-right">${value} ${unit}</div>`;
+        }
+
+        // --- Calculator 1 Logic ---
+        function calculate1() {
+            const inputs = {
+                bandwidthHz: parseFloat(document.getElementById("inputBandwidth").value),
+                quantizerBits: parseFloat(document.getElementById("inputQuantizerBits").value),
+                sourceEncoderRate: parseFloat(document.getElementById("inputSourceEncoderRate").value),
+                channelEncoderRate: parseFloat(document.getElementById("inputChannelEncoderRate").value),
+                interleaverBits: parseFloat(document.getElementById("inputInterleaverBits").value),
+                burstSizeBits: parseFloat(document.getElementById("inputBurstSize").value)
+            };
+
+            if (Math.log2(inputs.interleaverBits) % 1 !== 0) {
+              alert("Input Validation: Interleaver block size must be a power of 2.");
+              return;
+            }
+
+            const samplingFrequency = 2 * inputs.bandwidthHz;
+            const quantizerOutputRate = samplingFrequency * inputs.quantizerBits;
+            const sourceEncoderOutputRate = quantizerOutputRate * inputs.sourceEncoderRate;
+            const channelEncoderOutputRate = sourceEncoderOutputRate / inputs.channelEncoderRate;
+            const interleaverOutputRate = channelEncoderOutputRate;
+            const burstDurationSec = inputs.burstSizeBits / interleaverOutputRate;
+
+            const outputs = {
+                "Sampling Rate (f_s)": { value: samplingFrequency.toFixed(0), unit: 'Hz' },
+                "Quantizer Output Rate": { value: (quantizerOutputRate/1000).toFixed(2), unit: 'kbps' },
+                "Source Encoder Output Rate": { value: (sourceEncoderOutputRate/1000).toFixed(2), unit: 'kbps' },
+                "Channel Encoder Output Rate": { value: (channelEncoderOutputRate/1000).toFixed(2), unit: 'kbps' },
+                "Interleaver Output Rate": { value: (interleaverOutputRate/1000).toFixed(2), unit: 'kbps' },
+                "Burst Duration": { value: (burstDurationSec * 1000).toFixed(3), unit: 'ms' }
+            };
+
+            let resultHTML = '<div class="grid grid-cols-2 gap-x-4 gap-y-2 text-left text-lg">';
+            for(const [key, val] of Object.entries(outputs)){
+                resultHTML += formatResult(key, val.value, val.unit);
+            }
+            resultHTML += '</div>';
+            document.getElementById("result1").innerHTML = resultHTML;
+            
+            lastCalculation = { scenario: 'Wireless Communication System', inputs, outputs };
+            document.getElementById('explainBtn1').classList.remove('hidden');
+            document.getElementById('explanation1').classList.add('hidden');
+        }
+        function explain1() { getAIExplanation(lastCalculation.scenario, lastCalculation.inputs, lastCalculation.outputs, 'explanation1'); }
+
+        // --- Calculator 2 Logic ---
+        function calculate2() {
+            const inputs = {
+                resourceBlockBandwidthKHz: parseFloat(document.getElementById("inputResourceBlockBandwidth").value),
+                subcarrierSpacingKHz: parseFloat(document.getElementById("subcarrierSpacing").value),
+                numOfdmSymbolsPerRB: parseFloat(document.getElementById("inputNumOfdmSymbolPerResourceBlock").value),
+                resourceBlockDurationMs: parseFloat(document.getElementById("inputResourceBlockDuration").value),
+                modulationOrder: parseFloat(document.getElementById("inputModulation").value),
+                parallelResourceBlocks: parseFloat(document.getElementById("inputParallelResourceBlocks").value)
+            };
+
+            if (Math.log2(inputs.modulationOrder) % 1 !== 0) {
+                alert("Input Validation: Modulation order must be a power of 2 (e.g., 64, 256, 1024).");
+                return;
+            }
+
+            const numBitsPerSymbol = Math.log2(inputs.modulationOrder);
+            const numSubcarriersPerRB = inputs.resourceBlockBandwidthKHz / inputs.subcarrierSpacingKHz;
+            const numBitsPerResourceBlock = numBitsPerSymbol * numSubcarriersPerRB * inputs.numOfdmSymbolsPerRB;
+            const maximumRateMbps = (inputs.parallelResourceBlocks * numBitsPerResourceBlock) / (inputs.resourceBlockDurationMs);
+            const totalBandwidthMHz = (inputs.parallelResourceBlocks * inputs.resourceBlockBandwidthKHz) / 1000;
+            const spectralEfficiencyBpsHz = (maximumRateMbps) / totalBandwidthMHz;
+
+            const outputs = {
+                "Bits per Symbol (k)": { value: numBitsPerSymbol, unit: 'bits' },
+                "Subcarriers per RB": { value: numSubcarriersPerRB.toFixed(0), unit: '' },
+                "Bits per Resource Block": { value: numBitsPerResourceBlock.toFixed(0), unit: 'bits/RB' },
+                "Max Data Rate": { value: (maximumRateMbps/1000).toFixed(2), unit: 'Mbps' },
+                "Total Bandwidth": { value: totalBandwidthMHz.toFixed(2), unit: 'MHz' },
+                "Spectral Efficiency": { value: spectralEfficiencyBpsHz.toFixed(2), unit: 'bps/Hz' }
+            };
+
+            let resultHTML = '<div class="grid grid-cols-2 gap-x-4 gap-y-2 text-left text-lg">';
+            for(const [key, val] of Object.entries(outputs)){
+                resultHTML += formatResult(key, val.value, val.unit);
+            }
+            resultHTML += '</div>';
+            document.getElementById("result2").innerHTML = resultHTML;
+
+            lastCalculation = { scenario: 'OFDM System', inputs, outputs };
+            document.getElementById('explainBtn2').classList.remove('hidden');
+            document.getElementById('explanation2').classList.add('hidden');
+        }
+        function explain2() { getAIExplanation(lastCalculation.scenario, lastCalculation.inputs, lastCalculation.outputs, 'explanation2'); }
+
+        // --- Calculator 3 Logic ---
+        function calculate3() {
+            const inputs = {
+                pathLossDb: parseFloat(document.getElementById("inputPathLoss").value),
+                txAntennaGainDbi: parseFloat(document.getElementById("inputTransmitAntennaGain").value),
+                rxAntennaGainDbi: parseFloat(document.getElementById("inputReceiveAntennaGain").value),
+                dataRateKbps: parseFloat(document.getElementById("inputDataRate").value),
+                otherLossesDb: parseFloat(document.getElementById("inputOtherLosses").value),
+                fadeMarginDb: parseFloat(document.getElementById("inputFadeMargin").value),
+                noiseFigureDb: parseFloat(document.getElementById("inputNoiseFigureTotal").value),
+                noiseTemperatureK: parseFloat(document.getElementById("inputNoiseTemperature").value),
+                modulationType: document.getElementById("inputModulationType").value,
+                maxBer: parseFloat(document.getElementById("inputMaxBitErrorRate").value)
+            };
+
+            const k_boltzmann_db = -228.6; // dBW/K/Hz
+            const requiredEbNoDb = calculateEbNo(inputs.modulationType, inputs.maxBer);
+            const dataRateDbHz = 10 * Math.log10(inputs.dataRateKbps * 1000);
+            
+            const thermalNoisePowerDbW = k_boltzmann_db + 10 * Math.log10(inputs.noiseTemperatureK) + dataRateDbHz;
+            const receiverSensitivityDbW = thermalNoisePowerDbW + inputs.noiseFigureDb + requiredEbNoDb;
+            const requiredReceivedPowerDbW = receiverSensitivityDbW + inputs.fadeMarginDb;
+            const requiredTransmittedPowerDbW = requiredReceivedPowerDbW + inputs.pathLossDb + inputs.otherLossesDb - inputs.txAntennaGainDbi - inputs.rxAntennaGainDbi;
+            
+            const outputs = {
+                "Required Eb/No": { value: requiredEbNoDb.toFixed(2), unit: 'dB' },
+                "Receiver Sensitivity": { value: (receiverSensitivityDbW + 30).toFixed(2), unit: 'dBm' },
+                "Required Received Power": { value: (requiredReceivedPowerDbW + 30).toFixed(2), unit: 'dBm' },
+                "Required Transmitted Power": { value: (requiredTransmittedPowerDbW + 30).toFixed(2), unit: 'dBm' },
+                "Transmitted Power (Watt)": { value: (10 ** (requiredTransmittedPowerDbW / 10)).toExponential(3), unit: 'W' }
+            };
+            
+            let resultHTML = '<div class="grid grid-cols-2 gap-x-4 gap-y-2 text-left text-lg">';
+            for(const [key, val] of Object.entries(outputs)){
+                resultHTML += formatResult(key, val.value, val.unit);
+            }
+            resultHTML += '</div>';
+            document.getElementById("result3").innerHTML = resultHTML;
+            
+            lastCalculation = { scenario: 'Link Budget Calculation', inputs, outputs };
+            document.getElementById('explainBtn3').classList.remove('hidden');
+            document.getElementById('explanation3').classList.add('hidden');
+        }
+        function explain3() { getAIExplanation(lastCalculation.scenario, lastCalculation.inputs, lastCalculation.outputs, 'explanation3'); }
+
+        // --- Calculator 4 Logic ---
+        function calculate4() {
+            const inputs = {
+                totalAreaKm2: parseFloat(document.getElementById("inputCityArea").value),
+                numSubscribers: parseFloat(document.getElementById("inputNumSubscribers").value),
+                callsPerHourPerUser: parseFloat(document.getElementById("inputAvgCallsPerHour").value),
+                avgCallDurationMin: parseFloat(document.getElementById("inputAvgCallDuration").value),
+                blockingProbability: parseFloat(document.getElementById("inputCallDropProb").value),
+                minSirDb: parseFloat(document.getElementById("inputMinSIR").value),
+                pathLossExponent: parseFloat(document.getElementById("inputPathLossExponent").value),
+                cellRadiusKm: parseFloat(document.getElementById("inputCellRadius").value)
+            };
+
+            const cellAreaKm2 = (3 * Math.sqrt(3) / 2) * (inputs.cellRadiusKm ** 2);
+            const numCells = Math.ceil(inputs.totalAreaKm2 / cellAreaKm2);
+            const trafficPerUserErlang = (inputs.callsPerHourPerUser * inputs.avgCallDurationMin) / 60;
+            const totalTrafficErlang = inputs.numSubscribers * trafficPerUserErlang;
+            const trafficPerCellErlang = totalTrafficErlang / numCells;
+            const minSirLinear = 10 ** (inputs.minSirDb / 10);
+            const clusterSize = Math.ceil((1/3) * (6 * minSirLinear)**(2 / inputs.pathLossExponent));
+            const channelsPerCell = findChannels(trafficPerCellErlang, inputs.blockingProbability);
+            const totalSystemChannels = clusterSize * channelsPerCell;
+
+            const outputs = {
+                "Cell Area": { value: cellAreaKm2.toFixed(2), unit: 'km²' },
+                "Number of Cells": { value: numCells, unit: '' },
+                "Total System Traffic": { value: totalTrafficErlang.toFixed(2), unit: 'Erlangs' },
+                "Traffic per Cell": { value: trafficPerCellErlang.toFixed(2), unit: 'Erlangs' },
+                "Required Cluster Size (N)": { value: clusterSize, unit: '' },
+                "Channels per Cell": { value: channelsPerCell, unit: 'channels' },
+                "Total System Channels": { value: totalSystemChannels, unit: 'channels' }
+            };
+            
+            let resultHTML = '<div class="grid grid-cols-2 gap-x-4 gap-y-2 text-left text-lg">';
+            for(const [key, val] of Object.entries(outputs)){
+                resultHTML += formatResult(key, val.value, val.unit);
+            }
+            resultHTML += '</div>';
+            document.getElementById("result4").innerHTML = resultHTML;
+            
+            lastCalculation = { scenario: 'Cellular System Design', inputs, outputs };
+            document.getElementById('explainBtn4').classList.remove('hidden');
+            document.getElementById('explanation4').classList.add('hidden');
+        }
+        function explain4() { getAIExplanation(lastCalculation.scenario, lastCalculation.inputs, lastCalculation.outputs, 'explanation4'); }
+
+        // --- BER Plotting Script ---
+        function plotBer() {
+            const eb_no_db = Array.from({ length: 180 }, (v, k) => k * 0.1);
+            const eb_no = eb_no_db.map((x) => 10 ** (x / 10));
+            
+            const ber_bpsk_vals = eb_no.map(ber_bpsk);
+            const ber_8psk_vals = eb_no.map((x) => ber_psk(x, 8));
+            const ber_16psk_vals = eb_no.map((x) => ber_psk(x, 16));
+
+            Plotly.newPlot("plot", [
+                { x: eb_no_db, y: ber_bpsk_vals, mode: "lines", name: "BPSK" },
+                { x: eb_no_db, y: ber_8psk_vals, mode: "lines", name: "8-PSK" },
+                { x: eb_no_db, y: ber_16psk_vals, mode: "lines", name: "16-PSK" }
+            ], {
+                title: "BER vs. Eb/No for PSK Modulations",
+                xaxis: { title: "Eb/No (dB)" },
+                yaxis: { title: "Bit Error Rate (BER)", type: "log", autorange: true },
+                legend: { x: 0.1, y: 0.1 }
+            });
+        }
+        plotBer();
+    </script>
+</body>
+</html>
